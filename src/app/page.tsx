@@ -12,7 +12,7 @@ export default async function Page({
 }) {
   const { page } = await searchParams;
   const currentPage = Math.max(1, parseInt(page ?? "1", 10) || 1);
-  const { rows, total } = getPresupuestosPage(currentPage, PAGE_SIZE);
+  const { rows, total } = await getPresupuestosPage(currentPage, PAGE_SIZE);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
 
