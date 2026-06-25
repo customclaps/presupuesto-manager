@@ -679,8 +679,12 @@ export default function BudgetTable() {
       <div className="rounded-xl border p-5 bg-white shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5">
 
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Maderas Cambireca" className="h-20 sm:h-24 w-auto object-contain" />
+          <div className="flex flex-col items-center gap-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Maderas Cambireca" className="h-20 sm:h-24 w-auto object-contain" />
+            <span className="text-xs text-gray-500">info@maderascambireca.com.ar</span>
+            <span className="text-xs text-gray-500">www.maderascambireca.com.ar</span>
+          </div>
 
           <div className="flex flex-col sm:items-end gap-1 text-right text-sm text-gray-600 leading-relaxed">
             <div className="flex items-center gap-2 mb-2">
@@ -694,10 +698,8 @@ export default function BudgetTable() {
             <span>Ruta Nacional 14 km 311</span>
             <span>(Colonia Alemana)-Federación -Entre Ríos</span>
             <span>cuit: 20271168501</span>
-            <span>Engelmann Eric — Tel: 0343-154544012</span>
-            <span>Fabian Ayrala — Tel: 03456 15620198</span>
-            <span>info@maderascambireca.com.ar</span>
-            <span>www.maderascambireca.com.ar</span>
+            <span>Tel: 03456 15620198</span>
+            <span> Tel: 0343-154544012</span>
           </div>
         </div>
 
