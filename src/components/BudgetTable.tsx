@@ -591,9 +591,11 @@ export default function BudgetTable() {
       return row;
     });
 
+    const totalLabelIdx = showCantidad ? 4 : 3;
     if (showSumatoriaFinal && (showSubtotal || showIva)) {
-      const totalRow: (string | number)[] = ["", "", "", "Total"];
-      if (showCantidad) totalRow.push("");
+      const totalRow: (string | number)[] = ["", "", "", ""];
+      if (showCantidad) totalRow.push("Total");
+      else totalRow[3] = "Total";
       if (showSubtotal) totalRow.push(moneyARS(totalSubtotal));
       if (showIva) totalRow.push(moneyARS(totalConIva));
       body.push(totalRow);
@@ -619,10 +621,16 @@ export default function BudgetTable() {
         if (
           showSumatoriaFinal &&
           (showSubtotal || showIva) &&
+          data.section === "body" &&
           data.row.index === body.length - 1
         ) {
-          data.cell.styles.fontStyle = "bold";
-          data.cell.styles.fillColor = [255, 255, 255];
+          if (data.column.index < totalLabelIdx) {
+            data.cell.styles.fillColor = [255, 255, 255];
+            data.cell.styles.lineWidth = 0;
+          } else {
+            data.cell.styles.fontStyle = "bold";
+            data.cell.styles.fillColor = [255, 255, 255];
+          }
         }
       },
       margin: { left: marginL, right: marginR },
