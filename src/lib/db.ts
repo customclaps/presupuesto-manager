@@ -45,7 +45,8 @@ export async function getAllPresupuestos(): Promise<Presupuesto[]> {
   await init();
   const { rows } = await getPool().query(
     `SELECT id, numero, cliente, fecha, items, show_cantidad, show_subtotal,
-            show_iva, show_sumatoria, created_at, updated_at
+            show_iva, show_sumatoria,
+            created_at::text AS created_at, updated_at::text AS updated_at
      FROM presupuestos ORDER BY id DESC`
   );
   return rows as Presupuesto[];
@@ -60,7 +61,8 @@ export async function getPresupuestosPage(
   const [result, countResult] = await Promise.all([
     getPool().query(
       `SELECT id, numero, cliente, fecha, items, show_cantidad, show_subtotal,
-              show_iva, show_sumatoria, created_at, updated_at
+              show_iva, show_sumatoria,
+              created_at::text AS created_at, updated_at::text AS updated_at
        FROM presupuestos ORDER BY id DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
     ),
@@ -77,7 +79,10 @@ export async function getPresupuestoById(
 ): Promise<Presupuesto | undefined> {
   await init();
   const { rows } = await getPool().query(
-    `SELECT * FROM presupuestos WHERE id = $1`,
+    `SELECT id, numero, cliente, fecha, items, notas_html, pdf_config, font_config,
+            show_cantidad, show_subtotal, show_iva, show_sumatoria,
+            created_at::text AS created_at, updated_at::text AS updated_at
+     FROM presupuestos WHERE id = $1`,
     [id]
   );
   return rows[0] as Presupuesto | undefined;
