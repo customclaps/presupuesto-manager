@@ -523,8 +523,6 @@ export default function BudgetTable() {
       "Tel: 0343-154544012",
       "Fabian Ayrala",
       "Tel: 03456 15620198",
-      "info@maderascambireca.com.ar",
-      "www.maderascambireca.com.ar",
     ];
 
     const F = fontCfg.familia;
@@ -540,7 +538,18 @@ export default function BudgetTable() {
       infoY += lineH;
     }
 
-    const headerBottom = Math.max(HEADER_TOP + LOGO_H, infoY) + 10;
+    // Email y web centrados bajo el logo
+    const logoCenter = marginL + LOGO_W / 2;
+    const contactLines = ["info@maderascambireca.com.ar", "www.maderascambireca.com.ar"];
+    doc.setFontSize(FS - 1);
+    doc.setFont(F, "normal");
+    let contactY = HEADER_TOP + LOGO_H + (FS * 1.45);
+    for (const line of contactLines) {
+      doc.text(line, logoCenter - doc.getTextWidth(line) / 2, contactY);
+      contactY += FS * 1.45;
+    }
+
+    const headerBottom = Math.max(contactY, infoY) + 10;
     doc.setDrawColor(59, 135, 156);
     doc.setLineWidth(0.8);
     doc.line(marginL, headerBottom, pageW - marginR, headerBottom);
