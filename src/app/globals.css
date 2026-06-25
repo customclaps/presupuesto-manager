@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+html { font-size: 16px; }
+body { margin: 0; font-size: 1rem; }
+
+/* --- Presupuesto estilo "Excel" --- */
+.budget-table { border-collapse: collapse; width: 100%; }
+.budget-table th, .budget-table td { border: 1px solid #e0e0e0; }
+.budget-head th { background:#3b879c;color:#fff;font-weight:700; }
+.budget-zebra tbody tr:nth-child(odd)  td { background:#ffffff; }
+.budget-zebra tbody tr:nth-child(even) td { background:#f2f2f2; }
+.budget-total td { background:#fff;font-weight:700; }
+
+/* Simple modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; z-index:50; }
+.modal { background: white; border: 1px solid #e5e7eb; border-radius: 16px; width: min(640px, 92vw); padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }

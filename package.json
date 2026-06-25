@@ -1,0 +1,35 @@
+{
+  "name": "presupuesto-manager",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_NO_WARNINGS=1 next dev -p 3001",
+    "build": "cross-env NODE_NO_WARNINGS=1 next build",
+    "start": "cross-env NODE_NO_WARNINGS=1 next start -p 3001",
+    "lint": "next lint",
+    "seed": "node --no-warnings seed.mjs"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
+    "lucide-react": "^0.462.0",
+    "next": "15.1.9",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwind-merge": "^2.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "cross-env": "^10.1.0",
+    "eslint": "^8",
+    "eslint-config-next": "15.1.9",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
