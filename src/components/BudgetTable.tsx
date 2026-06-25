@@ -599,12 +599,18 @@ export default function BudgetTable() {
       body.push(totalRow);
     }
 
+    const numericCols: Record<number, object> = {};
+    for (let i = 1; i < head.length; i++) {
+      numericCols[i] = { halign: "right" };
+    }
+
     autoTable(doc, {
       startY: cursorY + 8,
       head: [head],
       body,
-      styles: { font: F, fontSize: FS, cellPadding: pdfCfg.paddingTabla, lineColor: [224, 224, 224], lineWidth: 0.3 },
-      headStyles: { fillColor: [59, 135, 156], lineColor: [224, 224, 224], lineWidth: 0.3 },
+      styles: { font: F, fontSize: FS, cellPadding: pdfCfg.paddingTabla, lineColor: [224, 224, 224], lineWidth: 0.3, textColor: [0, 0, 0] },
+      headStyles: { fillColor: [59, 135, 156], lineColor: [224, 224, 224], lineWidth: 0.3, textColor: [255, 255, 255] },
+      columnStyles: numericCols,
       didParseCell: (data) => {
         if (data.section === "body") {
           data.cell.styles.fillColor =
