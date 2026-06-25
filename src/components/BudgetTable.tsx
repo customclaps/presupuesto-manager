@@ -287,7 +287,14 @@ export default function BudgetTable() {
 
   React.useEffect(() => {
     const rawId = searchParams.get("id");
-    if (!rawId) return;
+    if (!rawId) {
+      // Nuevo presupuesto: obtener el próximo número disponible
+      fetch("/api/presupuestos/next-numero")
+        .then((r) => r.json())
+        .then((data) => { if (data.numero) setNroPresupuesto(data.numero); })
+        .catch(() => {});
+      return;
+    }
     const numId = parseInt(rawId, 10);
     if (isNaN(numId)) return;
     setPresupuestoId(numId);

@@ -131,3 +131,13 @@ export async function deletePresupuesto(id: number): Promise<void> {
   await init();
   await getPool().query(`DELETE FROM presupuestos WHERE id = $1`, [id]);
 }
+
+export async function getNextNumero(): Promise<string> {
+  await init();
+  const { rows } = await getPool().query(`
+    SELECT COALESCE(MAX(CAST(numero AS INTEGER)), 0) + 1 AS next
+    FROM presupuestos
+    WHERE numero ~ '^[0-9]+$'
+  `);
+  return String(rows[0].next).padStart(4, "0");
+}
