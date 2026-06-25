@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const presupuesto = getPresupuestoById(Number(id));
+    const presupuesto = await getPresupuestoById(Number(id));
     if (!presupuesto) {
       return NextResponse.json({ error: "No encontrado" }, { status: 404 });
     }
@@ -31,7 +31,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = (await request.json()) as PresupuestoInput;
-    updatePresupuesto(Number(id), body);
+    await updatePresupuesto(Number(id), body);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[PUT /api/presupuestos/[id]]", err);
@@ -48,7 +48,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    deletePresupuesto(Number(id));
+    await deletePresupuesto(Number(id));
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[DELETE /api/presupuestos/[id]]", err);

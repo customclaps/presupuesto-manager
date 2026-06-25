@@ -1,43 +1,16 @@
-import path from "path";
+import { createClient } from "@libsql/client";
 import type { Presupuesto, PresupuestoInput } from "./types";
 
-const DB_PATH = path.resolve(process.cwd(), "..", "presupuestos.db");
-
-interface StatementSync {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  run(...params: any[]): { lastInsertRowid: number; changes: number };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  all(...params: any[]): any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  get(...params: any[]): any;
-}
-interface DbInstance {
-  exec(sql: string): void;
-  prepare(sql: string): StatementSync;
-  close(): void;
+function getDb() {
+  return createClient({
+    url: process.env.TURSO_DATABASE_URL!,
+    authToken: process.env.TURSO_AUTH_TOKEN,
+  });
 }
 
-declare global {
-  // eslint-disable-next-line no-var
-  var __presupuestosDb: DbInstance | undefined;
-}
-
-function getDb(): DbInstance {
-  if (!global.__presupuestosDb) {
-    // require dentro de getDb para evitar evaluación en tiempo de bundle
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { DatabaseSync } = require("node:sqlite") as {
-      DatabaseSync: new (path: string) => DbInstance;
-    };
-    global.__presupuestosDb = new DatabaseSync(DB_PATH);
-    global.__presupuestosDb.exec("PRAGMA journal_mode = WAL");
-    initSchema(global.__presupuestosDb);
-  }
-  return global.__presupuestosDb;
-}
-
-function initSchema(db: DbInstance) {
-  db.exec(`
+async function initSchema() {
+  const db = getDb();
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS presupuestos (
       id           INTEGER PRIMARY KEY AUTOINCREMENT,
       numero       TEXT    NOT NULL DEFAULT '',
@@ -57,82 +30,127 @@ function initSchema(db: DbInstance) {
   `);
 }
 
-export function getAllPresupuestos(): Presupuesto[] {
-  const rows = getDb()
-    .prepare(
-      `SELECT id, numero, cliente, fecha, items, show_cantidad, show_subtotal,
-              show_iva, show_sumatoria, created_at, updated_at
-       FROM presupuestos ORDER BY id DESC`
-    )
-    .all();
-  return rows.map((row) => ({ ...row }) as Presupuesto);
+let schemaInitialized = false;
+async function ensureSchema() {
+  if (!schemaInitialized) {
+    await initSchema();
+    schemaInitialized = true;
+  }
 }
 
-export function getPresupuestosPage(
+export async function getAllPresupuestos(): Promise<Presupuesto[]> {
+  await ensureSchema();
+  const db = getDb();
+  const result = await db.execute(
+    `SELECT id, numero, cliente, fecha, items, show_cantidad, show_subtotal,
+            show_iva, show_sumatoria, created_at, updated_at
+     FROM presupuestos ORDER BY id DESC`
+  );
+  return result.rows.map((row) => ({ ...row }) as unknown as Presupuesto);
+}
+
+export async function getPresupuestosPage(
   page: number,
   limit: number
-): { rows: Presupuesto[]; total: number } {
-  const offset = (page - 1) * limit;
+): Promise<{ rows: Presupuesto[]; total: number }> {
+  await ensureSchema();
   const db = getDb();
-  const rows = db
-    .prepare(
-      `SELECT id, numero, cliente, fecha, items, show_cantidad, show_subtotal,
-              show_iva, show_sumatoria, created_at, updated_at
-       FROM presupuestos ORDER BY id DESC LIMIT ? OFFSET ?`
-    )
-    .all(limit, offset);
-  const countRow = db
-    .prepare(`SELECT COUNT(*) as total FROM presupuestos`)
-    .get() as { total: number };
+  const offset = (page - 1) * limit;
+  const [rowsResult, countResult] = await Promise.all([
+    db.execute({
+      sql: `SELECT id, numero, cliente, fecha, items, show_cantidad, show_subtotal,
+                   show_iva, show_sumatoria, created_at, updated_at
+            FROM presupuestos ORDER BY id DESC LIMIT ? OFFSET ?`,
+      args: [limit, offset],
+    }),
+    db.execute(`SELECT COUNT(*) as total FROM presupuestos`),
+  ]);
   return {
-    rows: rows.map((row) => ({ ...row }) as Presupuesto),
-    total: Number(countRow.total),
+    rows: rowsResult.rows.map((row) => ({ ...row }) as unknown as Presupuesto),
+    total: Number(countResult.rows[0].total),
   };
 }
 
-export function getPresupuestoById(id: number): Presupuesto | undefined {
-  const row = getDb()
-    .prepare(`SELECT * FROM presupuestos WHERE id = ?`)
-    .get(id);
-  if (!row) return undefined;
-  return { ...(row as Presupuesto) };
+export async function getPresupuestoById(
+  id: number
+): Promise<Presupuesto | undefined> {
+  await ensureSchema();
+  const db = getDb();
+  const result = await db.execute({
+    sql: `SELECT * FROM presupuestos WHERE id = ?`,
+    args: [id],
+  });
+  if (!result.rows[0]) return undefined;
+  return { ...(result.rows[0] as unknown as Presupuesto) };
 }
 
-export function createPresupuesto(data: PresupuestoInput): number {
-  const result = getDb()
-    .prepare(
-      `INSERT INTO presupuestos
-        (numero, cliente, fecha, items, notas_html, pdf_config, font_config,
-         show_cantidad, show_subtotal, show_iva, show_sumatoria)
-       VALUES
-        (@numero, @cliente, @fecha, @items, @notas_html, @pdf_config, @font_config,
-         @show_cantidad, @show_subtotal, @show_iva, @show_sumatoria)`
-    )
-    .run(data);
+export async function createPresupuesto(
+  data: PresupuestoInput
+): Promise<number> {
+  await ensureSchema();
+  const db = getDb();
+  const result = await db.execute({
+    sql: `INSERT INTO presupuestos
+            (numero, cliente, fecha, items, notas_html, pdf_config, font_config,
+             show_cantidad, show_subtotal, show_iva, show_sumatoria)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      data.numero,
+      data.cliente,
+      data.fecha,
+      data.items,
+      data.notas_html,
+      data.pdf_config,
+      data.font_config,
+      data.show_cantidad,
+      data.show_subtotal,
+      data.show_iva,
+      data.show_sumatoria,
+    ],
+  });
   return Number(result.lastInsertRowid);
 }
 
-export function updatePresupuesto(id: number, data: PresupuestoInput): void {
-  getDb()
-    .prepare(
-      `UPDATE presupuestos SET
-        numero         = @numero,
-        cliente        = @cliente,
-        fecha          = @fecha,
-        items          = @items,
-        notas_html     = @notas_html,
-        pdf_config     = @pdf_config,
-        font_config    = @font_config,
-        show_cantidad  = @show_cantidad,
-        show_subtotal  = @show_subtotal,
-        show_iva       = @show_iva,
-        show_sumatoria = @show_sumatoria,
-        updated_at     = datetime('now')
-       WHERE id = @id`
-    )
-    .run({ ...data, id });
+export async function updatePresupuesto(
+  id: number,
+  data: PresupuestoInput
+): Promise<void> {
+  await ensureSchema();
+  const db = getDb();
+  await db.execute({
+    sql: `UPDATE presupuestos SET
+            numero         = ?,
+            cliente        = ?,
+            fecha          = ?,
+            items          = ?,
+            notas_html     = ?,
+            pdf_config     = ?,
+            font_config    = ?,
+            show_cantidad  = ?,
+            show_subtotal  = ?,
+            show_iva       = ?,
+            show_sumatoria = ?,
+            updated_at     = datetime('now')
+          WHERE id = ?`,
+    args: [
+      data.numero,
+      data.cliente,
+      data.fecha,
+      data.items,
+      data.notas_html,
+      data.pdf_config,
+      data.font_config,
+      data.show_cantidad,
+      data.show_subtotal,
+      data.show_iva,
+      data.show_sumatoria,
+      id,
+    ],
+  });
 }
 
-export function deletePresupuesto(id: number): void {
-  getDb().prepare(`DELETE FROM presupuestos WHERE id = ?`).run(id);
+export async function deletePresupuesto(id: number): Promise<void> {
+  await ensureSchema();
+  const db = getDb();
+  await db.execute({ sql: `DELETE FROM presupuestos WHERE id = ?`, args: [id] });
 }

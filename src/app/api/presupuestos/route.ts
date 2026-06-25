@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const presupuestos = getAllPresupuestos();
+    const presupuestos = await getAllPresupuestos();
     return NextResponse.json(presupuestos);
   } catch (err) {
     console.error("[GET /api/presupuestos]", err);
@@ -20,7 +20,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as PresupuestoInput;
-    const id = createPresupuesto(body);
+    const id = await createPresupuesto(body);
     return NextResponse.json({ id }, { status: 201 });
   } catch (err) {
     console.error("[POST /api/presupuestos]", err);
