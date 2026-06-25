@@ -610,8 +610,8 @@ export default function BudgetTable() {
       startY: cursorY + 8,
       head: [head],
       body,
-      styles: { font: F, fontSize: FS, cellPadding: pdfCfg.paddingTabla, lineColor: [224, 224, 224], lineWidth: 0.3, textColor: [0, 0, 0] },
-      headStyles: { fillColor: [59, 135, 156], lineColor: [224, 224, 224], lineWidth: 0.3, textColor: [255, 255, 255] },
+      styles: { font: F, fontSize: FS, cellPadding: pdfCfg.paddingTabla, lineColor: [100, 100, 100], lineWidth: 0.3, textColor: [0, 0, 0] },
+      headStyles: { fillColor: [59, 135, 156], lineColor: [100, 100, 100], lineWidth: 0.3, textColor: [255, 255, 255] },
       columnStyles: numericCols,
       didParseCell: (data) => {
         if (data.section === "body") {
@@ -630,7 +630,7 @@ export default function BudgetTable() {
           } else {
             data.cell.styles.fontStyle = "bold";
             data.cell.styles.fillColor = [255, 255, 255];
-            data.cell.styles.lineColor = [160, 160, 160];
+            data.cell.styles.lineColor = [0, 0, 0];
             data.cell.styles.lineWidth = 0.6;
           }
         }
