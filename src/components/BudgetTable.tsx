@@ -518,11 +518,9 @@ export default function BudgetTable() {
       `Ppto. Nro: ${nroPresupuesto.padStart(7, "0")}`,
       "Ruta Nacional 14 km 311",
       "(Colonia Alemana)-Federación -Entre Ríos",
-      "cuit:20271168501",
-      "Engelmann Eric",
-      "Tel: 0343-154544012",
-      "Fabian Ayrala",
+      "cuit: 20271168501",
       "Tel: 03456 15620198",
+      "Tel: 0343-154544012",
     ];
 
     const F = fontCfg.familia;
