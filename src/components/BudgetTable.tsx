@@ -530,7 +530,7 @@ export default function BudgetTable() {
     doc.setFont(F, "normal");
     const lineH = FS * 1.45;
     const rightX = pageW - marginR;
-    let infoY = HEADER_TOP + 4;
+    let infoY = HEADER_TOP + 15;
     for (const line of empresaLines) {
       doc.text(line, rightX - doc.getTextWidth(line), infoY);
       infoY += lineH;
