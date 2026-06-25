@@ -630,6 +630,8 @@ export default function BudgetTable() {
           } else {
             data.cell.styles.fontStyle = "bold";
             data.cell.styles.fillColor = [255, 255, 255];
+            data.cell.styles.lineColor = [160, 160, 160];
+            data.cell.styles.lineWidth = 0.6;
           }
         }
       },
