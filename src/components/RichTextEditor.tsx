@@ -105,7 +105,7 @@ export function RichTextEditor({ editorRef, defaultHtml, fontFamily, fontSize }:
         ref={editorRef as React.RefObject<HTMLDivElement>}
         contentEditable
         suppressContentEditableWarning
-        className="min-h-[180px] p-4 focus:outline-none leading-relaxed"
+        className="min-h-[180px] p-4 focus:outline-none leading-relaxed bg-white"
         style={{
           fontFamily: fontFamily ?? "Helvetica, Arial, sans-serif",
           fontSize: fontSize ?? "9pt",

@@ -669,7 +669,7 @@ export default function BudgetTable() {
       </div>
 
       {/* ── Encabezado: logo + datos empresa ── */}
-      <div className="rounded-xl border p-5">
+      <div className="rounded-xl border p-5 bg-white shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5">
 
           {/* eslint-disable-next-line @next/next/no-img-element */}
