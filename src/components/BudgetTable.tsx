@@ -630,7 +630,13 @@ export default function BudgetTable() {
       }
     }
 
-    doc.save("presupuesto.pdf");
+    const now = new Date();
+    const yy = String(now.getFullYear()).slice(-2);
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const cliente = destinatario.trim().toUpperCase().replace(/\s+/g, "_").replace(/[^A-Z0-9_]/g, "") || "SIN_NOMBRE";
+    const nro = nroPresupuesto.padStart(4, "0");
+    doc.save(`${yy}_${mm}_${dd}_${cliente}_${nro}.pdf`);
     await guardarPresupuesto();
   }
 
