@@ -92,6 +92,9 @@ function parseEditorHTML(html: string): Para[] {
   const body = dom.body;
   const paras: Para[] = [];
 
+  type St = { bold: boolean; italic: boolean; underline: boolean; fontSize: number | null };
+  const EMPTY_ST: St = { bold: false, italic: false, underline: false, fontSize: null };
+
   function alignOf(el: Element): Align {
     const s = (el.getAttribute("style") ?? "").toLowerCase().replace(/\s/g, "");
     if (s.includes("text-align:right")) return "right";
@@ -99,20 +102,9 @@ function parseEditorHTML(html: string): Para[] {
     return "left";
   }
 
-  function collectRuns(
-    node: Node,
-    st: { bold: boolean; italic: boolean; underline: boolean; fontSize: number | null },
-    out: TextRun[]
-  ) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const t = node.textContent ?? "";
-      if (t) out.push({ ...st, text: t });
-      return;
-    }
-    if (node.nodeType !== Node.ELEMENT_NODE) return;
-    const el = node as Element;
-    const tag = el.tagName.toLowerCase();
+  function mergeStyle(el: Element, st: St): St {
     const next = { ...st };
+    const tag = el.tagName.toLowerCase();
     if (tag === "b" || tag === "strong") next.bold = true;
     if (tag === "i" || tag === "em") next.italic = true;
     if (tag === "u") next.underline = true;
@@ -123,19 +115,55 @@ function parseEditorHTML(html: string): Para[] {
       if (/font-weight\s*:\s*bold/i.test(style)) next.bold = true;
       if (/font-style\s*:\s*italic/i.test(style)) next.italic = true;
     }
+    return next;
+  }
+
+  function collectRuns(node: Node, st: St, out: TextRun[]) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const t = node.textContent ?? "";
+      if (t) out.push({ ...st, text: t });
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const el = node as Element;
+    const next = mergeStyle(el, st);
     for (const child of Array.from(el.childNodes)) collectRuns(child, next, out);
   }
 
-  function processBlock(el: Element) {
+  function processBlock(el: Element, inherited: St) {
+    const st = mergeStyle(el, inherited);
+
+    // Si el elemento contiene hijos de bloque (div/p), procesarlos por separado
+    // heredando los estilos del padre (caso típico: <span font-size> wrapping <div>s)
+    const hasBlockChildren = Array.from(el.childNodes).some(
+      c => c.nodeType === Node.ELEMENT_NODE &&
+           ["div", "p"].includes((c as Element).tagName.toLowerCase())
+    );
+
+    if (hasBlockChildren) {
+      for (const child of Array.from(el.childNodes)) {
+        if (child.nodeType === Node.ELEMENT_NODE) {
+          const childEl = child as Element;
+          const tag = childEl.tagName.toLowerCase();
+          if (tag === "div" || tag === "p") processBlock(childEl, st);
+          else if (tag === "br") paras.push({ runs: [], align: "left" });
+        } else if (child.nodeType === Node.TEXT_NODE) {
+          const t = child.textContent?.trim();
+          if (t) paras.push({ runs: [{ ...st, text: t }], align: "left" });
+        }
+      }
+      return;
+    }
+
+    // Elemento hoja: recolectar runs en un único párrafo
     const align = alignOf(el);
     const runs: TextRun[] = [];
-    const base = { bold: false, italic: false, underline: false, fontSize: null as number | null };
     for (const child of Array.from(el.childNodes)) {
       if ((child as Element).tagName?.toLowerCase() === "br") {
         paras.push({ runs: runs.length ? [...runs] : [], align });
         runs.length = 0;
       } else {
-        collectRuns(child, base, runs);
+        collectRuns(child, st, runs);
       }
     }
     paras.push({ runs, align });
@@ -148,7 +176,7 @@ function parseEditorHTML(html: string): Para[] {
     } else if (child.nodeType === Node.ELEMENT_NODE) {
       const el = child as Element;
       if (el.tagName.toLowerCase() === "br") paras.push({ runs: [], align: "left" });
-      else processBlock(el);
+      else processBlock(el, EMPTY_ST);
     }
   }
   return paras;
