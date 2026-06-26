@@ -634,13 +634,25 @@ export default function BudgetTable() {
         ) {
           data.cell.styles.fillColor = [255, 255, 255];
           if (data.column.index < totalLabelIdx) {
-            data.cell.styles.lineColor = [80, 80, 80];
-            data.cell.styles.lineWidth = 0.5;
+            data.cell.styles.lineWidth = 0; // sin bordes, se dibuja solo el superior manualmente
           } else {
             data.cell.styles.fontStyle = "bold";
             data.cell.styles.lineColor = [0, 0, 0];
             data.cell.styles.lineWidth = 0.6;
           }
+        }
+      },
+      didDrawCell: (data: any) => {
+        if (
+          showSumatoriaFinal &&
+          (showSubtotal || showIva) &&
+          data.section === "body" &&
+          data.row.index === body.length - 1 &&
+          data.column.index < totalLabelIdx
+        ) {
+          data.doc.setDrawColor(80, 80, 80);
+          data.doc.setLineWidth(0.5);
+          data.doc.line(data.cell.x, data.cell.y, data.cell.x + data.cell.width, data.cell.y);
         }
       },
       margin: { left: marginL, right: marginR },
@@ -982,9 +994,17 @@ export default function BudgetTable() {
           {showTotalRow && (
             <TableFooter>
               <TableRow className="budget-total">
-                <TableCell /><TableCell /><TableCell />
-                <TableCell className="text-right font-semibold">Total</TableCell>
-                {showCantidad && <TableCell />}
+                <TableCell style={{ border: "none", borderTop: "2px solid #000" }} />
+                <TableCell style={{ border: "none", borderTop: "2px solid #000" }} />
+                <TableCell style={{ border: "none", borderTop: "2px solid #000" }} />
+                {showCantidad ? (
+                  <>
+                    <TableCell style={{ border: "none", borderTop: "2px solid #000" }} />
+                    <TableCell className="text-right font-semibold">Total</TableCell>
+                  </>
+                ) : (
+                  <TableCell className="text-right font-semibold">Total</TableCell>
+                )}
                 {showSubtotal && (
                   <TableCell className="text-right font-semibold">{moneyARS(totalSubtotal)}</TableCell>
                 )}
