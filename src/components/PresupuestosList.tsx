@@ -163,10 +163,6 @@ export default function PresupuestosList({
                   <th className="px-4 sm:px-5 py-4 font-semibold">Nro.</th>
                   <th className="px-4 sm:px-5 py-4 font-semibold">Cliente</th>
                   <th className="px-4 sm:px-5 py-4 font-semibold">Fecha</th>
-                  <th className="px-4 sm:px-5 py-4 font-semibold text-right">
-                    Total c/IVA
-                  </th>
-                  <th className="px-4 sm:px-5 py-4 font-semibold hidden lg:table-cell">Creado</th>
                   <th className="px-4 sm:px-5 py-4"></th>
                 </tr>
               </thead>
@@ -191,16 +187,6 @@ export default function PresupuestosList({
                       </td>
                       <td className="px-4 sm:px-5 py-4 text-gray-600 whitespace-nowrap">
                         {formatDate(p.fecha)}
-                      </td>
-                      <td className="px-4 sm:px-5 py-4 text-right font-semibold text-gray-800 whitespace-nowrap">
-                        {total > 0 ? (
-                          formatARS(total)
-                        ) : (
-                          <span className="text-gray-400 font-normal">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 sm:px-5 py-4 text-gray-500 text-sm whitespace-nowrap hidden lg:table-cell">
-                        {formatDate(p.created_at)}
                       </td>
                       <td className="px-4 sm:px-5 py-4">
                         <div className="flex items-center gap-2 justify-end">
@@ -227,17 +213,17 @@ export default function PresupuestosList({
                             <>
                               <Link
                                 href={`/editor?id=${p.id}`}
-                                className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-700 font-medium whitespace-nowrap"
+                                className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
+                                title="Editar"
                               >
-                                <Pencil size={14} />
-                                Editar
+                                <Pencil size={15} />
                               </Link>
                               <button
                                 onClick={() => setConfirmId(p.id)}
-                                className="flex items-center gap-2 px-4 py-2 text-sm border border-red-200 rounded-lg hover:bg-red-50 transition-colors text-red-600 font-medium whitespace-nowrap"
+                                className="p-2 border border-red-200 rounded-lg hover:bg-red-50 transition-colors text-red-600"
+                                title="Eliminar"
                               >
-                                <Trash2 size={14} />
-                                Eliminar
+                                <Trash2 size={15} />
                               </button>
                             </>
                           )}
