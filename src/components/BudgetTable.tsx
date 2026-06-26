@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -45,6 +46,7 @@ function moneyARS(value: number) {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(value);
 }
@@ -562,13 +564,19 @@ export default function BudgetTable() {
 
     if (destinatario.trim()) {
       doc.setFontSize(FS);
-      doc.setFont(F, "bold");
       const label = "Presupuesto dirigido a: ";
+      doc.setFont(F, "bold");
       const labelW = doc.getTextWidth(label);
       doc.text(label, marginL, cursorY);
       doc.setFont(F, "normal");
-      doc.text(destinatario.trim(), marginL + labelW, cursorY);
+
+      const destiLines = destinatario.trim().split("\n").filter(l => l.trim());
+      doc.text(destiLines[0] ?? "", marginL + labelW, cursorY);
       cursorY += FS * 1.5;
+      for (let i = 1; i < destiLines.length; i++) {
+        doc.text(destiLines[i].trim(), marginL + labelW, cursorY);
+        cursorY += FS * 1.5;
+      }
     }
 
     const head: string[] = ["Característica", "Largo", "Ø en cima", "Precio c/u"];
@@ -624,12 +632,12 @@ export default function BudgetTable() {
           data.section === "body" &&
           data.row.index === body.length - 1
         ) {
+          data.cell.styles.fillColor = [255, 255, 255];
           if (data.column.index < totalLabelIdx) {
-            data.cell.styles.fillColor = [255, 255, 255];
-            data.cell.styles.lineWidth = 0;
+            data.cell.styles.lineColor = [80, 80, 80];
+            data.cell.styles.lineWidth = 0.5;
           } else {
             data.cell.styles.fontStyle = "bold";
-            data.cell.styles.fillColor = [255, 255, 255];
             data.cell.styles.lineColor = [0, 0, 0];
             data.cell.styles.lineWidth = 0.6;
           }
@@ -739,14 +747,15 @@ export default function BudgetTable() {
               <Label className={`text-base whitespace-nowrap font-medium ${destinatarioError ? "text-red-500" : ""}`}>
                 Presupuesto dirigido a: <span className="text-red-500">*</span>
               </Label>
-              <Input
-                className={`w-full sm:w-72 h-10 text-base ${destinatarioError ? "border-red-500 focus:ring-red-400" : ""}`}
+              <Textarea
+                className={`w-full sm:w-72 text-base min-h-[3rem] resize-y ${destinatarioError ? "border-red-500 focus:ring-red-400" : ""}`}
                 value={destinatario}
                 onChange={(e) => {
                   setDestinatario(e.target.value);
                   if (e.target.value.trim()) setDestinatarioError(false);
                 }}
-                placeholder="Nombre del cliente (obligatorio)"
+                placeholder={"Nombre del cliente (obligatorio)\nCUIT: ..."}
+                rows={2}
               />
             </div>
             {destinatarioError && (
