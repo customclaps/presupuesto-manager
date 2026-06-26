@@ -570,11 +570,11 @@ export default function BudgetTable() {
       doc.text(label, marginL, cursorY);
       doc.setFont(F, "normal");
 
-      const destiLines = destinatario.trim().split("\n").filter(l => l.trim());
+      const destiLines = destinatario.split("\n");
       doc.text(destiLines[0] ?? "", marginL + labelW, cursorY);
       cursorY += FS * 1.5;
       for (let i = 1; i < destiLines.length; i++) {
-        doc.text(destiLines[i].trim(), marginL + labelW, cursorY);
+        if (destiLines[i].trim()) doc.text(destiLines[i], marginL + labelW, cursorY);
         cursorY += FS * 1.5;
       }
     }
