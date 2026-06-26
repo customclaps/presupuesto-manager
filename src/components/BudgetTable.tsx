@@ -560,7 +560,7 @@ export default function BudgetTable() {
     doc.setFont(F, "normal");
     const fechaText = todayLong();
     doc.text(fechaText, rightX - doc.getTextWidth(fechaText), cursorY);
-    cursorY += FS * 1.6;
+    cursorY += FS * 2.5;
 
     if (destinatario.trim()) {
       doc.setFontSize(FS);
@@ -580,7 +580,7 @@ export default function BudgetTable() {
     }
 
     const head: string[] = ["Característica", "Largo", "Ø en cima", "Precio c/u"];
-    if (showCantidad) head.push("Cantidad");
+    if (showCantidad) head.push("Cant.");
     if (showSubtotal) head.push("Subtotal");
     if (showIva) head.push("+IVA 21%");
 
@@ -784,7 +784,7 @@ export default function BudgetTable() {
         <div className="flex flex-wrap items-center gap-5 rounded-xl border p-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox checked={showCantidad} onCheckedChange={setShowCantidad} />
-            <span className="text-base font-medium">cantidad</span>
+            <span className="text-base font-medium">cant.</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox checked={showSubtotal} onCheckedChange={setShowSubtotal} />
@@ -910,7 +910,7 @@ export default function BudgetTable() {
                 <Input value={precioUnitario} onChange={(e) => setPrecioUnitario(e.target.value)} />
               </div>
               <div className="grid gap-2">
-                <Label>Cantidad</Label>
+                <Label>Cant.</Label>
                 <Input value={cantidad} onChange={(e) => setCantidad(e.target.value)} />
               </div>
             </div>
@@ -956,7 +956,7 @@ export default function BudgetTable() {
               <TableHead className="py-3 text-base">largo</TableHead>
               <TableHead className="py-3 text-base">Ø en cima</TableHead>
               <TableHead className="text-right py-3 text-base">precio c/u</TableHead>
-              {showCantidad && <TableHead className="text-right py-3 text-base">cantidad</TableHead>}
+              {showCantidad && <TableHead className="text-right py-3 text-base">cant.</TableHead>}
               {showSubtotal && <TableHead className="text-right py-3 text-base">subtotal</TableHead>}
               {showIva && <TableHead className="text-right py-3 text-base">+iva 21%</TableHead>}
             </TableRow>
